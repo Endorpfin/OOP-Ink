@@ -27,16 +27,21 @@ public class ProductBasket {
 
     public void printBasket() {
         boolean empty = true;
+        int specialCount = 0;
         for (Product product : products) {
             if (product != null) {
-                System.out.println(product.getName() + ": " + product.getPrice());
+                System.out.println(product.toString());
                 empty = false;
+                if (product.isSpecial()) {
+                    specialCount++;
+                }
             }
         }
         if (empty) {
             System.out.println("в корзине пусто");
         } else {
             System.out.println("Итого: " + getTotalPrice());
+            System.out.println("Специальных товаров: " + specialCount);
         }
     }
 
