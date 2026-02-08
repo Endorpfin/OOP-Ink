@@ -1,6 +1,7 @@
 package org.skypro.skyshop;
 
 import org.skypro.skyshop.article.Article;
+import org.skypro.skyshop.product.Product;
 import org.skypro.skyshop.product.SimpleProduct;
 import org.skypro.skyshop.product.DiscountedProduct;
 import org.skypro.skyshop.product.FixPriceProduct;
@@ -9,7 +10,7 @@ import org.skypro.skyshop.search.SearchEngine;
 import org.skypro.skyshop.search.Searchable;
 import org.skypro.skyshop.search.BestResultNotFound;
 
-import java.util.Arrays;
+import java.util.List;
 
 public class App {
     public static void main(String[] args) {
@@ -79,7 +80,6 @@ public class App {
         basket.addProduct(cheese);
         basket.addProduct(tea);
         basket.addProduct(coffee);
-
         basket.addProduct(water);
 
         basket.printBasket();
@@ -87,6 +87,18 @@ public class App {
         System.out.println("Стоимость корзины: " + basket.getTotalPrice());
         System.out.println("Есть ли 'Хлеб' в корзине? " + basket.hasProductByName("Хлеб"));
         System.out.println("Есть ли 'Яблоко' в корзине? " + basket.hasProductByName("Яблоко"));
+
+        // ----- Демонстрация удаления по имени -----
+        System.out.println("\n=== Удаление продукта по имени ===\n");
+        List<Product> removed = basket.removeByName("Хлеб");
+        System.out.println("Удалённые продукты: " + removed);
+        basket.printBasket();
+
+        List<Product> removedNone = basket.removeByName("Яблоко");
+        if (removedNone.isEmpty()) {
+            System.out.println("Список пуст");
+        }
+        basket.printBasket();
 
         basket.clear();
 
@@ -110,12 +122,12 @@ public class App {
         engine.add(article2);
         engine.add(article3);
 
-        System.out.println("\nПоиск по \"Молоко\": " + Arrays.toString(engine.search("Молоко")));
-        System.out.println("Поиск по \"Сыр\": " + Arrays.toString(engine.search("Сыр")));
-        System.out.println("Поиск по \"Чай\": " + Arrays.toString(engine.search("Чай")));
-        System.out.println("Поиск по \"рецепт\": " + Arrays.toString(engine.search("рецепт")));
+        System.out.println("\nПоиск по \"Молоко\": " + engine.search("Молоко"));
+        System.out.println("Поиск по \"Сыр\": " + engine.search("Сыр"));
+        System.out.println("Поиск по \"Чай\": " + engine.search("Чай"));
+        System.out.println("Поиск по \"рецепт\": " + engine.search("рецепт"));
 
-        // ----- Демонстрация findBest: когда объект найден -----
+        // ----- Демонстрация findBest -----
         System.out.println("\n=== Поиск наиболее подходящего (findBest) ===\n");
 
         try {
@@ -132,7 +144,6 @@ public class App {
             System.out.println("Исключение: " + e.getMessage());
         }
 
-        // ----- Демонстрация findBest: когда объект не найден (исключение) -----
         try {
             Searchable best = engine.findBest("НесуществующийЗапросXYZ");
             System.out.println("Наиболее подходящий: " + best.getStringRepresentation());
