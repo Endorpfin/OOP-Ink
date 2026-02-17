@@ -80,6 +80,7 @@ public class App {
         basket.addProduct(cheese);
         basket.addProduct(tea);
         basket.addProduct(coffee);
+
         basket.addProduct(water);
 
         basket.printBasket();
@@ -127,7 +128,7 @@ public class App {
         System.out.println("Поиск по \"Чай\": " + engine.search("Чай"));
         System.out.println("Поиск по \"рецепт\": " + engine.search("рецепт"));
 
-        // ----- Демонстрация findBest -----
+        // ----- Демонстрация findBest: когда объект найден -----
         System.out.println("\n=== Поиск наиболее подходящего (findBest) ===\n");
 
         try {
@@ -144,6 +145,7 @@ public class App {
             System.out.println("Исключение: " + e.getMessage());
         }
 
+        // ----- Демонстрация findBest: когда объект не найден (исключение) -----
         try {
             Searchable best = engine.findBest("НесуществующийЗапросXYZ");
             System.out.println("Наиболее подходящий: " + best.getStringRepresentation());

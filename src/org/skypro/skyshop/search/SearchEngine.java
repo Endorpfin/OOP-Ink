@@ -1,27 +1,29 @@
 package org.skypro.skyshop.search;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class SearchEngine {
-    private final List<Searchable> items;
+    private final Map<String, Searchable> items;
 
     public SearchEngine(int capacity) {
-        this.items = new ArrayList<>(capacity);
+        this.items = new HashMap<>(capacity);
     }
 
     public void add(Searchable item) {
-        items.add(item);
+        items.put(item.getName(), item);
     }
 
     /**
-     * Возвращает все объекты, в getSearchTerm() которых содержится строка query.
+     * Возвращает все объекты, в getSearchTerm() которых содержится строка query,
+     * отсортированные по имени (ключу мапы).
      */
-    public List<Searchable> search(String query) {
-        List<Searchable> result = new ArrayList<>();
-        for (Searchable item : items) {
+    public Map<String, Searchable> search(String query) {
+        Map<String, Searchable> result = new TreeMap<>();
+        for (Searchable item : items.values()) {
             if (item != null && item.getSearchTerm().contains(query)) {
-                result.add(item);
+                result.put(item.getName(), item);
             }
         }
         return result;
@@ -57,7 +59,7 @@ public class SearchEngine {
         Searchable bestItem = null;
         int bestCount = -1;
 
-        for (Searchable item : items) {
+        for (Searchable item : items.values()) {
             if (item != null) {
                 String term = item.getSearchTerm();
                 int count = countOccurrences(term, search);
