@@ -4,18 +4,17 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 public class SearchEngine {
-    // Храним объекты в Set, чтобы не было дубликатов
     private final Set<Searchable> items;
 
-    // Компаратор для результатов поиска:
-    // 1) по длине имени: длиннее — раньше;
-    // 2) если длина одинакова — по алфавиту (натуральный порядок)
+    // Компаратор для выдачи результатов поиска:
+    // сначала по длине имени (длиннее — раньше), при равной длине — по алфавиту
     private static final Comparator<Searchable> SEARCH_RESULT_COMPARATOR =
             (a, b) -> {
                 int lengthCompare = Integer.compare(
-                        b.getName().length(),     // сначала более длинные
+                        b.getName().length(),
                         a.getName().length()
                 );
                 if (lengthCompare != 0) {
@@ -29,8 +28,6 @@ public class SearchEngine {
     }
 
     public void add(Searchable item) {
-        // благодаря equals/hashCode в Product и Article
-        // в Set не попадут дубликаты с тем же именем
         items.add(item);
     }
 
@@ -38,15 +35,13 @@ public class SearchEngine {
      * Возвращает все объекты, в getSearchTerm() которых содержится строка query,
      * отсортированные по длине имени (от самой длинной к самой короткой),
      * при равной длине — в натуральном порядке имени.
+     *
+     * Реализация только через Stream API: filter + collect(toCollection()).
      */
     public Set<Searchable> search(String query) {
-        Set<Searchable> result = new TreeSet<>(SEARCH_RESULT_COMPARATOR);
-        for (Searchable item : items) {
-            if (item != null && item.getSearchTerm().contains(query)) {
-                result.add(item);
-            }
-        }
-        return result;
+        return items.stream()
+                .filter(item -> item != null && item.getSearchTerm().contains(query))
+                .collect(Collectors.toCollection(() -> new TreeSet<>(SEARCH_RESULT_COMPARATOR)));
     }
 
     /**

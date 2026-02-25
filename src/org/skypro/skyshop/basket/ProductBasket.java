@@ -17,30 +17,23 @@ public class ProductBasket {
     }
 
     public int getTotalPrice() {
-        int sum = 0;
-        for (List<Product> products : productsByName.values()) {
-            for (Product product : products) {
-                sum += product.getPrice();
-            }
-        }
-        return sum;
+        return productsByName.values().stream()
+                .flatMap(List::stream)
+                .mapToInt(Product::getPrice)
+                .sum();
     }
 
     public void printBasket() {
         if (productsByName.isEmpty()) {
             System.out.println("в корзине пусто");
         } else {
-            int specialCount = 0;
-            for (List<Product> products : productsByName.values()) {
-                for (Product product : products) {
-                    System.out.println(product.toString());
-                    if (product.isSpecial()) {
-                        specialCount++;
-                    }
-                }
-            }
+            // Печать всех продуктов
+            productsByName.values().stream()
+                    .flatMap(List::stream)
+                    .forEach(product -> System.out.println(product.toString()));
+
             System.out.println("Итого: " + getTotalPrice());
-            System.out.println("Специальных товаров: " + specialCount);
+            System.out.println("Специальных товаров: " + getSpecialCount());
         }
     }
 
@@ -62,5 +55,13 @@ public class ProductBasket {
 
     public void clear() {
         productsByName.clear();
+    }
+
+    // Подсчёт количества специальных товаров через Stream API
+    private int getSpecialCount() {
+        return (int) productsByName.values().stream()
+                .flatMap(List::stream)
+                .filter(Product::isSpecial)
+                .count();
     }
 }
