@@ -1,32 +1,47 @@
 package org.skypro.skyshop.search;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 public class SearchEngine {
-    private final Map<String, Searchable> items;
+    private final Set<Searchable> items;
+
+    // Компаратор для выдачи результатов поиска:
+    // сначала по длине имени (длиннее — раньше), при равной длине — по алфавиту
+    private static final Comparator<Searchable> SEARCH_RESULT_COMPARATOR =
+            (a, b) -> {
+                int lengthCompare = Integer.compare(
+                        b.getName().length(),
+                        a.getName().length()
+                );
+                if (lengthCompare != 0) {
+                    return lengthCompare;
+                }
+                return a.getName().compareTo(b.getName());
+            };
 
     public SearchEngine(int capacity) {
-        this.items = new HashMap<>(capacity);
+        this.items = new HashSet<>(capacity);
     }
 
     public void add(Searchable item) {
-        items.put(item.getName(), item);
+        items.add(item);
     }
 
     /**
      * Возвращает все объекты, в getSearchTerm() которых содержится строка query,
-     * отсортированные по имени (ключу мапы).
+     * отсортированные по длине имени (от самой длинной к самой короткой),
+     * при равной длине — в натуральном порядке имени.
+     *
+     * Реализация только через Stream API: filter + collect(toCollection()).
      */
-    public Map<String, Searchable> search(String query) {
-        Map<String, Searchable> result = new TreeMap<>();
-        for (Searchable item : items.values()) {
-            if (item != null && item.getSearchTerm().contains(query)) {
-                result.put(item.getName(), item);
-            }
-        }
-        return result;
+    public Set<Searchable> search(String query) {
+        return items.stream()
+                .filter(item -> item != null && item.getSearchTerm().contains(query))
+                .collect(Collectors.toCollection(() -> new TreeSet<>(SEARCH_RESULT_COMPARATOR)));
     }
 
     /**
@@ -59,7 +74,7 @@ public class SearchEngine {
         Searchable bestItem = null;
         int bestCount = -1;
 
-        for (Searchable item : items.values()) {
+        for (Searchable item : items) {
             if (item != null) {
                 String term = item.getSearchTerm();
                 int count = countOccurrences(term, search);
