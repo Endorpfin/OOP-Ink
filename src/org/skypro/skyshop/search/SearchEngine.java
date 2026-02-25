@@ -1,29 +1,49 @@
 package org.skypro.skyshop.search;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class SearchEngine {
-    private final Map<String, Searchable> items;
+    // Храним объекты в Set, чтобы не было дубликатов
+    private final Set<Searchable> items;
+
+    // Компаратор для результатов поиска:
+    // 1) по длине имени: длиннее — раньше;
+    // 2) если длина одинакова — по алфавиту (натуральный порядок)
+    private static final Comparator<Searchable> SEARCH_RESULT_COMPARATOR =
+            (a, b) -> {
+                int lengthCompare = Integer.compare(
+                        b.getName().length(),     // сначала более длинные
+                        a.getName().length()
+                );
+                if (lengthCompare != 0) {
+                    return lengthCompare;
+                }
+                return a.getName().compareTo(b.getName());
+            };
 
     public SearchEngine(int capacity) {
-        this.items = new HashMap<>(capacity);
+        this.items = new HashSet<>(capacity);
     }
 
     public void add(Searchable item) {
-        items.put(item.getName(), item);
+        // благодаря equals/hashCode в Product и Article
+        // в Set не попадут дубликаты с тем же именем
+        items.add(item);
     }
 
     /**
      * Возвращает все объекты, в getSearchTerm() которых содержится строка query,
-     * отсортированные по имени (ключу мапы).
+     * отсортированные по длине имени (от самой длинной к самой короткой),
+     * при равной длине — в натуральном порядке имени.
      */
-    public Map<String, Searchable> search(String query) {
-        Map<String, Searchable> result = new TreeMap<>();
-        for (Searchable item : items.values()) {
+    public Set<Searchable> search(String query) {
+        Set<Searchable> result = new TreeSet<>(SEARCH_RESULT_COMPARATOR);
+        for (Searchable item : items) {
             if (item != null && item.getSearchTerm().contains(query)) {
-                result.put(item.getName(), item);
+                result.add(item);
             }
         }
         return result;
@@ -59,7 +79,7 @@ public class SearchEngine {
         Searchable bestItem = null;
         int bestCount = -1;
 
-        for (Searchable item : items.values()) {
+        for (Searchable item : items) {
             if (item != null) {
                 String term = item.getSearchTerm();
                 int count = countOccurrences(term, search);
